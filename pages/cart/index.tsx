@@ -1,8 +1,15 @@
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
+interface Drag {
+  _id: string;
+  price: number;
+  image: string;
+  "Trade name": string;
+}
+
 function Shop() {
-  const [dragsList, setDragsList] = useState([]);
+  const [dragsList, setDragsList] = useState<Drag[]>([]);
   const [page, setPage] = useState(1);
   const [nameShop, setNameShop] = useState("");
 
@@ -16,10 +23,10 @@ function Shop() {
       setPage(1);
       setNameShop(name);
     } else {
-      setDragsList(prevDragsList => {
-        const newDragsList = [...prevDragsList];
-        dragsList.forEach(drag => {
-          if (!newDragsList.find(item => item._id === drag._id)) {
+      setDragsList((prevDragsList: Drag[]) => {
+        const newDragsList: Drag[] = [...prevDragsList];
+        dragsList.forEach((drag: Drag) => {
+          if (!newDragsList.find((item: Drag) => item._id === drag._id)) {
             newDragsList.push(drag);
           }
         });

@@ -6,7 +6,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     const client = await clientPromise;
     const db = client.db("test2");
 
-    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const page =
+      typeof req.query.page === "string" ? parseInt(req.query.page) : 1;
     const limit = 10;
     const skip = (page - 1) * limit;
 
