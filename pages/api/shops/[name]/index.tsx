@@ -1,4 +1,4 @@
-import clientPromise from "../../lib/mongodb";
+import clientPromise from "../../../../lib/mongodb";
 import { NextApiRequest, NextApiResponse } from "next";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
@@ -6,18 +6,22 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     const client = await clientPromise;
     const db = client.db("test2");
 
+    const collectionName =
+      typeof req.query.name === "string" ? req.query.name : undefined;
+
+    if (!collectionName) {
+      res.status(400).json({ error: "Invalid collection name" });
+      return;
+    }
+
     const page =
       typeof req.query.page === "string" ? parseInt(req.query.page) : 1;
     const limit = 10;
     const skip = (page - 1) * limit;
 
     const drags = await db
-      .collection("drags")
+      .collection(collectionName)
       .find({})
-      .sort([
-        ["International non-proprietary name", 1],
-        ["_id", 1],
-      ])
       .skip(skip)
       .limit(limit)
       .toArray();

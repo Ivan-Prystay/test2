@@ -6,17 +6,23 @@ interface Drag {
   price: number;
   image: string;
   "Trade name": string;
+  "International non-proprietary name": string;
 }
 
 function Shop() {
   const [dragsList, setDragsList] = useState<Drag[]>([]);
   const [page, setPage] = useState(1);
   const [nameShop, setNameShop] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const getDragsList = async (name: string, page: number) => {
-    const dragsList = await fetch(`/api/${name}?page=${page}`).then(response =>
-      response.json()
-    );
+    setIsLoading(true);
+    const dragsList = await fetch(`/api/shops/${name}?page=${page}`)
+      .then(response => response.json())
+      .catch(error => console.log(error.message))
+      .finally(() => {
+        setIsLoading(false);
+      });
 
     if (name !== nameShop) {
       setDragsList(dragsList);
@@ -48,26 +54,64 @@ function Shop() {
     getDragsList("drags", 1);
   }, []);
 
+  const pathNameShops = [
+    { pathName: "drags", label: "Drags 24" },
+    { pathName: "ambulances", label: "Ambulances" },
+    { pathName: "medicines", label: "Medicines" },
+    { pathName: "pharmaces", label: "Pharmacies" },
+    { pathName: "newlifes", label: "New Life" },
+  ];
+
   return (
     <div>
-      <h1>Cart</h1>|<Link href="/"> Shop</Link>
-      <button onClick={() => getDragsList("drags", 1)}>Drags 24</button>
-      <button onClick={() => getDragsList("ambulances", 1)}>Ambulances</button>
-      <button onClick={() => getDragsList("medicines", 1)}>Medicines</button>
-      <button onClick={() => getDragsList("pharmaces", 1)}>Pharmacies</button>
-      <button onClick={() => getDragsList("newlifes", 1)}>New Life</button>
-      <ol>
-        {dragsList &&
-          dragsList.map(({ _id, price, "Trade name": tradeName, image }) => (
-            <li key={_id}>
-              <p>Price: {price} $</p>
-              <p>TradeName: {tradeName}</p>
-              <img src={image} width={200} alt={tradeName} />
-            </li>
-          ))}
-      </ol>
+      <h1>Cart </h1>|<Link href="/"> Shop</Link>
+      <h2>
+        {"Shop: "}
+        {pathNameShops.find(name => name.pathName === nameShop)?.label}
+      </h2>
+      <ul>
+        {pathNameShops.map(shop => (
+          <li key={shop.pathName}>
+            <button onClick={() => getDragsList(shop.pathName, 1)}>
+              {shop.label}
+            </button>
+          </li>
+        ))}
+      </ul>
+      {isLoading ? (
+        <p>Дані завантажуються...</p>
+      ) : (
+        <ol>
+          {dragsList &&
+            dragsList.map(
+              ({
+                _id,
+                price,
+                "Trade name": tradeName,
+                image,
+                "International non-proprietary name": nonProprietaryName,
+              }) => (
+                <li key={_id}>
+                  <p>
+                    {"Price: "}
+                    {price} $
+                  </p>
+                  <p>
+                    {"TradeName: "}
+                    {tradeName}
+                  </p>
+                  <p>
+                    {"International non-proprietary name: "}
+                    {nonProprietaryName}
+                  </p>
+                  <img src={image} width={200} alt={tradeName} />
+                </li>
+              )
+            )}
+        </ol>
+      )}
       {dragsList.length > 0 && (
-        <button onClick={loadMore}>Завантажити ще</button>
+        <button onClick={loadMore}> Завантажити ще </button>
       )}
     </div>
   );
