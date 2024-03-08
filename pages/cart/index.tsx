@@ -1,4 +1,4 @@
-import React, { EventHandler, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Drag } from "..";
 
 interface Product {
@@ -90,7 +90,7 @@ function Cart() {
 
     setOrder(newOrder);
 
-    const response = await fetch("http://localhost:3000/api/orders", {
+    const response = await fetch("/api/orders", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
