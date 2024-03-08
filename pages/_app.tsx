@@ -1,5 +1,4 @@
-import React from "react";
-
+import Layout from "../components/Layout";
 import "../styles/global.css";
 
 interface PageProps {}
@@ -11,6 +10,10 @@ function DragsDelivery({
   Component: React.FC<PageProps>;
   pageProps: PageProps;
 }) {
-  return <Component {...pageProps} />;
+  return (
+    <Layout>
+      <Component {...pageProps} />
+    </Layout>
+  );
 }
 export default DragsDelivery;

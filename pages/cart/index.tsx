@@ -1,120 +1,210 @@
-import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import React, { EventHandler, useEffect, useState } from "react";
+import { Drag } from "..";
 
-interface Drag {
+interface Product {
   _id: string;
-  price: number;
-  image: string;
-  "Trade name": string;
-  "International non-proprietary name": string;
+  shopName?: string;
+  quantity: number;
 }
 
-function Shop() {
-  const [dragsList, setDragsList] = useState<Drag[]>([]);
-  const [page, setPage] = useState(1);
-  const [nameShop, setNameShop] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+interface Order {
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  products: Product[];
+  totalPrice: number;
+  createdAt: Date;
+}
 
-  const getDragsList = async (name: string, page: number) => {
-    setIsLoading(true);
-    const dragsList = await fetch(`/api/shops/${name}?page=${page}`)
-      .then(response => response.json())
-      .catch(error => console.log(error.message))
-      .finally(() => {
-        setIsLoading(false);
-      });
-
-    if (name !== nameShop) {
-      setDragsList(dragsList);
-      setPage(1);
-      setNameShop(name);
-    } else {
-      setDragsList((prevDragsList: Drag[]) => {
-        const newDragsList: Drag[] = [...prevDragsList];
-        dragsList.forEach((drag: Drag) => {
-          if (!newDragsList.find((item: Drag) => item._id === drag._id)) {
-            newDragsList.push(drag);
-          }
-        });
-        setNameShop(name);
-        return newDragsList;
-      });
+function Cart() {
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storage = localStorage.getItem("selectedDrag");
+      setStorageDrags(storage);
+      const parsed = storage ? JSON.parse(storage) : [];
+      setDragsParsed(parsed);
     }
+  }, []);
+
+  const initialOrder: Order = {
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
+    products: [],
+    totalPrice: 0,
+    createdAt: new Date(),
   };
 
-  const loadMore = () => {
-    setPage(prevPage => {
-      const newPage = prevPage + 1;
-      getDragsList(nameShop, newPage);
-      return newPage;
+  const [storageDrags, setStorageDrags] = useState<string | null>(null);
+  const [dragsParsed, setDragsParsed] = useState([]);
+  const [order, setOrder] = useState<Order>(initialOrder);
+  const [inputValues, setInputValues] = useState<Product[]>([]);
+
+  const totalPrice = dragsParsed.reduce((total, item: Drag) => {
+    const product = inputValues.find(
+      (product: Product) => product._id === item._id
+    );
+    const itemQuantity = product ? product.quantity : 0;
+    return total + item.price * itemQuantity;
+  }, 0);
+
+  const handleChangeProduct = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = event.target;
+    const product = dragsParsed.find((product: Product) => product._id === id);
+    const shopName = product?.["shopName"] || "";
+    const newProduct = { _id: id, shopName, quantity: Number(value) };
+
+    setInputValues(prevValues => {
+      const productIndex = prevValues.findIndex(product => product._id === id);
+      if (productIndex !== -1) {
+        const newValues = [...prevValues];
+        newValues[productIndex] = newProduct;
+        return newValues;
+      } else {
+        return [...prevValues, newProduct];
+      }
     });
   };
 
-  useEffect(() => {
-    getDragsList("drags", 1);
-  }, []);
+  const handleSubmit = async (e: React.BaseSyntheticEvent) => {
+    e.preventDefault();
+    if (!totalPrice) {
+      return;
+    }
 
-  const pathNameShops = [
-    { pathName: "drags", label: "Drags 24" },
-    { pathName: "ambulances", label: "Ambulances" },
-    { pathName: "medicines", label: "Medicines" },
-    { pathName: "pharmaces", label: "Pharmacies" },
-    { pathName: "newlifes", label: "New Life" },
-  ];
+    const form = e.target;
+    const productsWithQuantity = inputValues.filter(
+      product => product.quantity > 0
+    );
+    const newOrder = {
+      name: form.elements.name.value,
+      phone: form.elements.phone.value,
+      address: form.elements.address.value,
+      email: form.elements.email.value,
+      totalPrice: totalPrice,
+      products: productsWithQuantity,
+      createdAt: new Date(),
+    };
+
+    setOrder(newOrder);
+
+    const response = await fetch("http://localhost:3000/api/orders", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newOrder),
+    });
+
+    if (response.ok) {
+      alert("Замовлення успішно відправлено!");
+      setInputValues([]);
+      form.reset();
+    } else {
+      alert("Помилка при відправці замовлення");
+    }
+  };
 
   return (
     <div>
-      <h1>Cart </h1>|<Link href="/"> Shop</Link>
-      <h2>
-        {"Shop: "}
-        {pathNameShops.find(name => name.pathName === nameShop)?.label}
-      </h2>
-      <ul>
-        {pathNameShops.map(shop => (
-          <li key={shop.pathName}>
-            <button onClick={() => getDragsList(shop.pathName, 1)}>
-              {shop.label}
+      <form onSubmit={handleSubmit}>
+        <div className=" flex  gap-4">
+          <div className="bg-gray-200 flex flex-col border-gray-400 border-2 w-80 p-4">
+            <label htmlFor="name">Name</label>
+            <input id="name" name="name" type="text" required />
+
+            <label htmlFor="email">Email</label>
+            <input id="email" name="email" type="email" required />
+
+            <label htmlFor="phone"> Phone</label>
+            <input id="phone" name="phone" type="tel" required />
+
+            <label htmlFor="address"> Address</label>
+            <input id="address" name="address" type="text" required />
+          </div>
+
+          <div className="py-4 px-8 border-gray-400 border-2 rounded-2xl overflow-y-scroll h-[65vh] w-full">
+            <ul className="flex flex-row flex-wrap gap-4 justify-around ">
+              {dragsParsed &&
+                dragsParsed.map(
+                  ({
+                    _id,
+                    price,
+                    "Trade name": tradeName,
+                    image,
+                    shopName,
+                  }: Drag) => (
+                    <li key={_id}>
+                      <div className="flex py-4 px-6 border-gray-400 border-2 rounded-2xl w-[700px] gap-5">
+                        <img
+                          src={image}
+                          width="400px"
+                          alt={tradeName}
+                          className="border-gray-400 border-2 rounded-2xl mb-2"
+                        />
+                        <div className="flex flex-col justify-center items-center w-full">
+                          <p className="text-xs mt-1 font-bold text-center">
+                            {tradeName}
+                          </p>
+                          <p className="text-sm">
+                            {"Price: "}
+                            <span className="font-bold">{price} $</span>
+                          </p>
+
+                          <input
+                            id={_id}
+                            className="w-16 bg-indigo-100 text-center"
+                            min={0}
+                            type="number"
+                            value={
+                              inputValues.find(product => product._id === _id)
+                                ?.quantity || ""
+                            }
+                            onChange={handleChangeProduct}
+                          />
+
+                          <p className="text-xs mt-10">
+                            {"Shop: "}
+                            <span className="font-bold">{shopName}</span>
+                          </p>
+                        </div>
+                      </div>
+                    </li>
+                  )
+                )}
+            </ul>
+          </div>
+        </div>
+
+        <div>
+          <div className="flex justify-end mt-5 gap-7">
+            <button
+              type="button"
+              className="bg-gray-900 p-4 rounded-lg  text-white"
+              onClick={() => {
+                localStorage.removeItem("selectedDrag");
+                setDragsParsed([]);
+              }}
+            >
+              Clear Cart
             </button>
-          </li>
-        ))}
-      </ul>
-      {isLoading ? (
-        <p>Дані завантажуються...</p>
-      ) : (
-        <ol>
-          {dragsList &&
-            dragsList.map(
-              ({
-                _id,
-                price,
-                "Trade name": tradeName,
-                image,
-                "International non-proprietary name": nonProprietaryName,
-              }) => (
-                <li key={_id}>
-                  <p>
-                    {"Price: "}
-                    {price} $
-                  </p>
-                  <p>
-                    {"TradeName: "}
-                    {tradeName}
-                  </p>
-                  <p>
-                    {"International non-proprietary name: "}
-                    {nonProprietaryName}
-                  </p>
-                  <img src={image} width={200} alt={tradeName} />
-                </li>
-              )
-            )}
-        </ol>
-      )}
-      {dragsList.length > 0 && (
-        <button onClick={loadMore}> Завантажити ще </button>
-      )}
+            <div className=" text-center">
+              Total price:
+              <p className="text-3xl font-bold">{totalPrice} $</p>
+            </div>
+            <button
+              className="bg-gray-900 p-4 rounded-lg  text-white"
+              type="submit"
+            >
+              Submit
+            </button>
+          </div>
+        </div>
+      </form>
     </div>
   );
 }
 
-export default Shop;
+export default Cart;
