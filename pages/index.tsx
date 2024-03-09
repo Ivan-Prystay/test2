@@ -88,15 +88,21 @@ function Home() {
   };
 
   useEffect(() => {
+    const sortedDragsList = [...dragsList]; // створюємо копію масиву
     if (selectedSortValue === "letterA") {
-      dragsList.sort((a, b) => b["Trade name"].localeCompare(a["Trade name"]));
+      sortedDragsList.sort((a, b) =>
+        a["Trade name"].localeCompare(b["Trade name"])
+      );
     } else if (selectedSortValue === "letterZ") {
-      dragsList.sort((a, b) => a["Trade name"].localeCompare(b["Trade name"]));
+      sortedDragsList.sort((a, b) =>
+        b["Trade name"].localeCompare(a["Trade name"])
+      );
     } else if (selectedSortValue === "priceUp") {
-      dragsList.sort((a, b) => b.price - a.price);
+      sortedDragsList.sort((a, b) => a.price - b.price);
     } else if (selectedSortValue === "priceDown") {
-      dragsList.sort((a, b) => a.price - b.price);
+      sortedDragsList.sort((a, b) => b.price - a.price);
     }
+    setDragsList(sortedDragsList); // оновлюємо стан з відсортованим масивом
   }, [selectedSortValue]);
 
   useEffect(() => {
@@ -110,7 +116,7 @@ function Home() {
   }, []);
 
   const pathNameShops = [
-    { pathName: "drags", label: "Drags 24" },
+    { pathName: "drags", label: "Drugs 24" },
     { pathName: "ambulances", label: "Ambulances" },
     { pathName: "medicines", label: "Medicines" },
     { pathName: "pharmaces", label: "Pharmacies" },
@@ -123,7 +129,7 @@ function Home() {
   return (
     <div>
       <div className="px-2 fixed right-10 top-10 flex flex-col">
-        <label htmlFor="sort-form">Sort By</label>
+        <p>Sort By</p>
         <select name="sort-form" onChange={handleSelectChange}>
           <option value="letterA">Trade Name A-Z</option>
           <option value="letterZ">Trade Name Z-A</option>
@@ -139,7 +145,7 @@ function Home() {
             {pathNameShops.map(shop => (
               <li key={shop.pathName}>
                 <button
-                  className={`bg-gray-500 p-2 rounded-lg w-32 text-white  ${
+                  className={`bg-gray-500 p-2 rounded-lg w-32 text-white ease-linear duration-700 hover:duration-300 hover:ease-linear hover:bg-gray-900  ${
                     currentShop === shop.label ? "bg-gray-900" : ""
                   }`}
                   onClick={() => getDragsList(shop.pathName, 1)}
@@ -151,7 +157,7 @@ function Home() {
           </ul>
           <button
             type="button"
-            className="bg-gray-900 mt-52 p-3 rounded-lg w-32 text-white justify-center"
+            className="bg-gray-900 mt-52 p-3 rounded-lg w-32 text-white justify-center ease-linear duration-700 hover:duration-300 hover:ease-linear hover:bg-gray-500"
             onClick={() => {
               localStorage.removeItem("selectedDrag");
               setSelectedDrag([]);
@@ -185,7 +191,11 @@ function Home() {
                       />
                       <button
                         type="button"
-                        className="py-2 px-3 bg-slate-200 rounded-lg"
+                        className={`py-2 px-3 bg-slate-200 rounded-lg ease-linear duration-700 hover:duration-300 hover:ease-linear hover:bg-gray-900 hover:text-white ${
+                          selectedDrag.find(product => product._id === _id)
+                            ? "text-white hover:bg-slate-200 bg-slate-900 hover:text-slate-900 ease-linear duration-700 hover:duration-300 hover:ease-linear"
+                            : null
+                        }`}
                         onClick={() => handleAddToCart(_id, currentShop!)}
                       >
                         {selectedDrag.find(product => product._id === _id)
@@ -213,7 +223,7 @@ function Home() {
           </ul>
           <button
             type="button"
-            className="bg-gray-900 p-3 rounded-lg text-white fixed bottom-16 right-12"
+            className="bg-gray-900 p-3 rounded-lg text-white fixed bottom-16 right-12 ease-linear duration-700 hover:duration-300 hover:ease-linear hover:bg-gray-500"
             onClick={loadMore}
           >
             Load More

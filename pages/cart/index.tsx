@@ -45,7 +45,6 @@ function Cart() {
   const [order, setOrder] = useState<Order>(initialOrder);
   const [inputValues, setInputValues] = useState<Product[]>([]);
 
-
   const totalPrice = dragsParsed.reduce((total, item: Drag) => {
     const product = inputValues.find(
       (product: Product) => product._id === item._id
@@ -195,7 +194,7 @@ function Cart() {
 
                           <button
                             type="button"
-                            className="bg-gray-900 mt-4 p-2 rounded-lg  text-white"
+                            className="bg-gray-900 mt-4 p-2 rounded-lg  text-white ease-linear duration-700 hover:duration-300 hover:ease-linear hover:bg-gray-500"
                             onClick={() => handleDelete(_id)}
                           >
                             Delete
@@ -213,7 +212,7 @@ function Cart() {
           <div className="flex justify-end mt-5 gap-7">
             <button
               type="button"
-              className="bg-gray-900 p-4 rounded-lg  text-white"
+              className="bg-gray-900 p-4 rounded-lg  text-white ease-linear duration-700 hover:duration-300 hover:ease-linear hover:bg-gray-500"
               onClick={() => {
                 localStorage.removeItem("selectedDrag");
                 setDragsParsed([]);
@@ -226,7 +225,7 @@ function Cart() {
               <p className="text-3xl font-bold">{totalPrice} $</p>
             </div>
             <button
-              className="bg-gray-900 p-4 rounded-lg  text-white"
+              className="bg-gray-900 p-4 rounded-lg  text-white ease-linear duration-700 hover:duration-300 hover:ease-linear hover:bg-gray-500"
               type="submit"
             >
               Submit

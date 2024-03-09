@@ -10,7 +10,7 @@ function Layout({ children }: Props) {
   return (
     <>
       <Head>
-        <title>Drags delivery</title>
+        <title>Drugs delivery</title>
         <meta property="og:title" content="My page title" key="title" />
       </Head>
       <Header />

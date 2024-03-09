@@ -31,9 +31,9 @@ function History() {
       ) : (
         historyList.length > 0 && (
           <>
-            <div className="flex py-6 gap-4  text-center bg-green-200 capitalize">
-              <div className="w-52"> ID</div>
-              <div className="w-16"> name </div>
+            <div className="flex py-6 text-center bg-green-200 capitalize">
+              <div className="w-64"> ID</div>
+              <div className="w-56"> name </div>
               <div className="w-64"> email</div>
               <div className="w-64"> phone</div>
               <div className="w-64"> address</div>
@@ -57,9 +57,9 @@ function History() {
                   _id,
                 }) => (
                   <li key={_id} className=" even:bg-slate-200">
-                    <div className="flex gap-4 ">
-                      <div className="w-52"> {_id}</div>
-                      <div className="w-16"> {name}</div>
+                    <div className="flex  ">
+                      <div className="w-64"> {_id}</div>
+                      <div className="w-56"> {name}</div>
                       <div className="w-64"> {email}</div>
                       <div className="w-64"> {phone}</div>
                       <div className="w-64"> {address}</div>
@@ -70,7 +70,7 @@ function History() {
                       <ul>
                         {products.map(product => (
                           <li key={product._id}>
-                            <div className="flex gap-4 pb-3">
+                            <div className="flex  pb-3">
                               <div className="w-56">
                                 {product.productName} ({product._id})
                               </div>
