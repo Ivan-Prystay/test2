@@ -16,7 +16,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
     const page =
       typeof req.query.page === "string" ? parseInt(req.query.page) : 1;
-    const limit = 12;
+    const limit = 50;
     const skip = (page - 1) * limit;
 
     const drags = await db

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 export interface Drag {
   _id: string;
@@ -13,7 +13,6 @@ function Home() {
   const [dragsList, setDragsList] = useState<Drag[]>([]);
   const [page, setPage] = useState(1);
   const [nameShop, setNameShop] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
 
   const [selectedDrag, setSelectedDrag] = useState<Drag[]>([]);
 
@@ -30,7 +29,6 @@ function Home() {
       const clickedDrug = dragsList.find(item => item._id === _id);
 
       if (clickedDrug) {
-        // Додаємо поле shopName до об'єкта
         const drugWithShop = { ...clickedDrug, shopName };
         setSelectedDrag([...selectedDrag, drugWithShop]);
       }
@@ -38,13 +36,10 @@ function Home() {
   };
 
   const getDragsList = async (name: string, page: number) => {
-    setIsLoading(true);
     const dragsList = await fetch(`/api/shops/${name}?page=${page}`)
       .then(response => response.json())
       .catch(error => console.log(error.message))
-      .finally(() => {
-        setIsLoading(false);
-      });
+      .finally(() => {});
 
     if (name !== nameShop) {
       setDragsList(dragsList);
@@ -109,13 +104,13 @@ function Home() {
   return (
     <div>
       <div className="flex gap-4">
-        <div className="py-8 px-8 border-gray-400 border-2 rounded-2xl ">
-          <h1 className="text-center text-xl mb-3 ">Shops:</h1>
-          <ul className="flex flex-col px-3 gap-4">
+        <div className="p-12 border-gray-400 border-2 rounded-2xl flex flex-col justify-between">
+          <ul className="flex flex-col gap-4">
+            <p className="text-center text-xl mb-3 ">Shops:</p>
             {pathNameShops.map(shop => (
               <li key={shop.pathName}>
                 <button
-                  className={`bg-gray-500 p-2 rounded-lg w-full text-white  ${
+                  className={`bg-gray-500 p-2 rounded-lg w-32 text-white  ${
                     currentShop === shop.label ? "bg-gray-900" : ""
                   }`}
                   onClick={() => getDragsList(shop.pathName, 1)}
@@ -125,85 +120,76 @@ function Home() {
               </li>
             ))}
           </ul>
-          {dragsList.length > 0 && (
-            <>
-              <button
-                type="button"
-                className="bg-gray-900 mt-10 p-1 rounded-lg w-full text-white"
-                onClick={loadMore}
-              >
-                Load More
-              </button>
-              <button
-                type="button"
-                className="bg-gray-900 mt-10 p-1 rounded-lg w-full text-white"
-                onClick={() => {
-                  localStorage.removeItem("selectedDrag");
-                  setSelectedDrag([]);
-                }}
-              >
-                Remove All
-              </button>
-            </>
-          )}
+          <button
+            type="button"
+            className="bg-gray-900 mt-52 p-3 rounded-lg w-32 text-white justify-center"
+            onClick={() => {
+              localStorage.removeItem("selectedDrag");
+              setSelectedDrag([]);
+            }}
+          >
+            Remove All
+          </button>
         </div>
-        {isLoading ? (
-          <p>Loading...</p>
-        ) : (
-          <div className="py-4 px-8 border-gray-400 border-2 rounded-2xl overflow-y-scroll h-[77vh]">
-            <ul className="flex flex-row flex-wrap gap-4 justify-around ">
-              {dragsList &&
-                dragsList.map(
-                  ({
-                    _id,
-                    price,
-                    "Trade name": tradeName,
-                    image,
-                    "International non-proprietary name": nonProprietaryName,
-                  }) => (
-                    <li
-                      key={_id}
-                      className="py-4 px-6 border-gray-400 border-2 rounded-2xl w-[400px]"
-                    >
-                      <div className="flex justify-between items-end">
-                        <img
-                          src={image}
-                          width="200px"
-                          alt={tradeName}
-                          className="border-gray-400 border-2 rounded-2xl mb-2"
-                        />
-                        <button
-                          type="button"
-                          className="py-2 px-3 bg-slate-200 rounded-lg"
-                          onClick={() => handleAddToCart(_id, currentShop!)}
-                        >
-                          {selectedDrag.find(product => product._id === _id)
-                            ? "Remove"
-                            : "Add to cart"}
-                        </button>
-                      </div>
-                      <>
-                        <p className="text-sm">
-                          {"Price: "}
-                          <span className="font-bold">{price} $</span>
-                        </p>
-                        <p className="text-xs mt-1">
-                          {"Trade Name: "}
-                          <span className="font-bold">{tradeName}</span>
-                        </p>
-                        <p className="text-xs mt-1">
-                          {"International non-proprietary name: "}
-                          <span className="font-bold">
-                            {nonProprietaryName}
-                          </span>
-                        </p>
-                      </>
-                    </li>
-                  )
-                )}
-            </ul>
-          </div>
-        )}
+
+        <div className="py-4 px-8 border-gray-400 border-2 rounded-2xl overflow-y-scroll h-[77vh]">
+          <ul className="flex flex-row flex-wrap gap-4 justify-around ">
+            {dragsList &&
+              dragsList.map(
+                ({
+                  _id,
+                  price,
+                  "Trade name": tradeName,
+                  image,
+                  "International non-proprietary name": nonProprietaryName,
+                }) => (
+                  <li
+                    key={_id}
+                    className="py-4 px-6 border-gray-400 border-2 rounded-2xl w-[400px]"
+                  >
+                    <div className="flex justify-between items-end">
+                      <img
+                        src={image}
+                        width="200px"
+                        alt={tradeName}
+                        className="border-gray-400 border-2 rounded-2xl mb-2"
+                      />
+                      <button
+                        type="button"
+                        className="py-2 px-3 bg-slate-200 rounded-lg"
+                        onClick={() => handleAddToCart(_id, currentShop!)}
+                      >
+                        {selectedDrag.find(product => product._id === _id)
+                          ? "Remove"
+                          : "Add to cart"}
+                      </button>
+                    </div>
+                    <>
+                      <p className="text-sm">
+                        {"Price: "}
+                        <span className="font-bold">{price} $</span>
+                      </p>
+                      <p className="text-xs mt-1">
+                        {"Trade Name: "}
+                        <span className="font-bold">{tradeName}</span>
+                      </p>
+                      <p className="text-xs mt-1">
+                        {"International non-proprietary name: "}
+                        <span className="font-bold">{nonProprietaryName}</span>
+                      </p>
+                    </>
+                  </li>
+                )
+              )}
+          </ul>
+          <button
+            type="button"
+            className="bg-gray-900 p-3 rounded-lg text-white fixed bottom-20 right-12"
+            onClick={loadMore}
+          >
+            Load More
+          </button>
+        </div>
       </div>
     </div>
   );

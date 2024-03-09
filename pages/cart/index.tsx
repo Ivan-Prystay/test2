@@ -5,9 +5,10 @@ interface Product {
   _id: string;
   shopName?: string;
   quantity: number;
+  productName: string;
 }
 
-interface Order {
+export interface Order {
   name: string;
   email: string;
   phone: string;
@@ -38,9 +39,13 @@ function Cart() {
   };
 
   const [storageDrags, setStorageDrags] = useState<string | null>(null);
+
   const [dragsParsed, setDragsParsed] = useState([]);
+
   const [order, setOrder] = useState<Order>(initialOrder);
   const [inputValues, setInputValues] = useState<Product[]>([]);
+
+  console.log("order: ", order);
 
   const totalPrice = dragsParsed.reduce((total, item: Drag) => {
     const product = inputValues.find(
@@ -54,7 +59,14 @@ function Cart() {
     const { id, value } = event.target;
     const product = dragsParsed.find((product: Product) => product._id === id);
     const shopName = product?.["shopName"] || "";
-    const newProduct = { _id: id, shopName, quantity: Number(value) };
+    const productName = product?.["Trade name"] || "";
+
+    const newProduct = {
+      _id: id,
+      shopName,
+      productName,
+      quantity: Number(value),
+    };
 
     setInputValues(prevValues => {
       const productIndex = prevValues.findIndex(product => product._id === id);
@@ -68,9 +80,20 @@ function Cart() {
     });
   };
 
+  const handleDelete = (_id: string) => {
+    const indexToRemove = dragsParsed.findIndex(
+      (product: Product) => product._id === _id
+    );
+    dragsParsed.splice(indexToRemove, 1);
+    const newStorageDrags = JSON.stringify(dragsParsed);
+    setStorageDrags(newStorageDrags);
+    localStorage.setItem("selectedDrag", newStorageDrags);
+  };
+
   const handleSubmit = async (e: React.BaseSyntheticEvent) => {
     e.preventDefault();
     if (!totalPrice) {
+      alert("Ви нічого не вибрали");
       return;
     }
 
@@ -100,10 +123,12 @@ function Cart() {
 
     if (response.ok) {
       alert("Замовлення успішно відправлено!");
+      setDragsParsed([]);
       setInputValues([]);
+      localStorage.removeItem("selectedDrag");
       form.reset();
     } else {
-      alert("Помилка при відправці замовлення");
+      alert("Помилка при надсиланні замовлення");
     }
   };
 
@@ -140,7 +165,7 @@ function Cart() {
                       <div className="flex py-4 px-6 border-gray-400 border-2 rounded-2xl w-[700px] gap-5">
                         <img
                           src={image}
-                          width="400px"
+                          width={400}
                           alt={tradeName}
                           className="border-gray-400 border-2 rounded-2xl mb-2"
                         />
@@ -148,14 +173,13 @@ function Cart() {
                           <p className="text-xs mt-1 font-bold text-center">
                             {tradeName}
                           </p>
-                          <p className="text-sm">
+                          <p className="text-sm mt-4">
                             {"Price: "}
                             <span className="font-bold">{price} $</span>
                           </p>
-
                           <input
                             id={_id}
-                            className="w-16 bg-indigo-100 text-center"
+                            className="w-16 bg-indigo-100 text-center mt-3"
                             min={0}
                             type="number"
                             value={
@@ -165,10 +189,18 @@ function Cart() {
                             onChange={handleChangeProduct}
                           />
 
-                          <p className="text-xs mt-10">
+                          <p className="text-xs mt-4">
                             {"Shop: "}
                             <span className="font-bold">{shopName}</span>
                           </p>
+
+                          <button
+                            type="button"
+                            className="bg-gray-900 mt-4 p-2 rounded-lg  text-white"
+                            onClick={() => handleDelete(_id)}
+                          >
+                            Delete
+                          </button>
                         </div>
                       </div>
                     </li>
