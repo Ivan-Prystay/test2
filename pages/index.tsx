@@ -16,6 +16,8 @@ function Home() {
 
   const [selectedDrag, setSelectedDrag] = useState<Drag[]>([]);
 
+  const [selectedSortValue, setSelectedSortValue] = useState("letterA");
+
   const handleAddToCart = (_id: string, shopName: string) => {
     const selectedProductIndex = selectedDrag.findIndex(
       (item: Drag) => item._id === _id
@@ -80,6 +82,23 @@ function Home() {
 
   const dragsParsed = storageDrags ? JSON.parse(storageDrags) : null;
 
+  const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedOption = event.target.value;
+    setSelectedSortValue(selectedOption);
+  };
+
+  useEffect(() => {
+    if (selectedSortValue === "letterA") {
+      dragsList.sort((a, b) => b["Trade name"].localeCompare(a["Trade name"]));
+    } else if (selectedSortValue === "letterZ") {
+      dragsList.sort((a, b) => a["Trade name"].localeCompare(b["Trade name"]));
+    } else if (selectedSortValue === "priceUp") {
+      dragsList.sort((a, b) => b.price - a.price);
+    } else if (selectedSortValue === "priceDown") {
+      dragsList.sort((a, b) => a.price - b.price);
+    }
+  }, [selectedSortValue]);
+
   useEffect(() => {
     if (dragsParsed) {
       setSelectedDrag(dragsParsed);
@@ -103,6 +122,16 @@ function Home() {
 
   return (
     <div>
+      <div className="px-2 fixed right-10 top-10 flex flex-col">
+        <label htmlFor="sort-form">Sort By</label>
+        <select name="sort-form" onChange={handleSelectChange}>
+          <option value="letterA">Trade Name A-Z</option>
+          <option value="letterZ">Trade Name Z-A</option>
+          <option value="priceUp">Price to Up</option>
+          <option value="priceDown">Price to Down</option>
+        </select>
+      </div>
+
       <div className="flex gap-4">
         <div className="p-12 border-gray-400 border-2 rounded-2xl flex flex-col justify-between">
           <ul className="flex flex-col gap-4">
@@ -184,7 +213,7 @@ function Home() {
           </ul>
           <button
             type="button"
-            className="bg-gray-900 p-3 rounded-lg text-white fixed bottom-20 right-12"
+            className="bg-gray-900 p-3 rounded-lg text-white fixed bottom-16 right-12"
             onClick={loadMore}
           >
             Load More

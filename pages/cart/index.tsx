@@ -45,7 +45,6 @@ function Cart() {
   const [order, setOrder] = useState<Order>(initialOrder);
   const [inputValues, setInputValues] = useState<Product[]>([]);
 
-  console.log("order: ", order);
 
   const totalPrice = dragsParsed.reduce((total, item: Drag) => {
     const product = inputValues.find(
