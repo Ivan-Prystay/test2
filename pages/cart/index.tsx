@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Drag } from "..";
+import Map from "../../components/Map";
 
 interface Product {
   _id: string;
@@ -130,22 +131,41 @@ function Cart() {
     }
   };
 
+  //************** Map logic **************
+
+  const [address, setAddress] = useState("Lviv");
+  const [newAddress, setNewAddress] = useState("");
+  const handleChangeAddress = e => {
+    setNewAddress(e.target.value);
+  };
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setAddress(newAddress);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [newAddress]);
+
   return (
     <div>
       <form onSubmit={handleSubmit}>
         <div className=" flex  gap-4">
-          <div className="bg-gray-200 flex flex-col border-gray-400 border-2 w-80 p-4">
+          <div className="bg-gray-200 flex flex-col border-gray-400 border-2 p-4">
+            <Map address={address} />
             <label htmlFor="name">Name</label>
             <input id="name" name="name" type="text" required />
-
             <label htmlFor="email">Email</label>
             <input id="email" name="email" type="email" required />
-
             <label htmlFor="phone"> Phone</label>
             <input id="phone" name="phone" type="tel" required />
-
             <label htmlFor="address"> Address</label>
-            <input id="address" name="address" type="text" required />
+            <input
+              id="address"
+              value={address}
+              name="address"
+              type="text"
+              required
+              onChange={handleChangeAddress}
+            />
           </div>
 
           <div className="py-4 px-8 border-gray-400 border-2 rounded-2xl overflow-y-scroll h-[65vh] w-full">
@@ -160,10 +180,10 @@ function Cart() {
                     shopName,
                   }: Drag) => (
                     <li key={_id}>
-                      <div className="flex py-4 px-6 border-gray-400 border-2 rounded-2xl w-[700px] gap-5">
+                      <div className="flex py-4 px-6 border-gray-400 border-2 rounded-2xl w-[600px] gap-5">
                         <img
                           src={image}
-                          width={400}
+                          width={350}
                           alt={tradeName}
                           className="border-gray-400 border-2 rounded-2xl mb-2"
                         />
@@ -209,7 +229,7 @@ function Cart() {
         </div>
 
         <div>
-          <div className="flex justify-end mt-5 gap-7">
+          <div className="flex justify-end mt-1 gap-7">
             <button
               type="button"
               className="bg-gray-900 p-4 rounded-lg  text-white ease-linear duration-700 hover:duration-300 hover:ease-linear hover:bg-gray-500"

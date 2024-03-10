@@ -3,7 +3,7 @@ import React from "react";
 
 function Footer() {
   return (
-    <footer className="bg-indigo-200 text-center fixed bottom-0 w-full py-5">
+    <footer className="bg-indigo-200 text-center fixed bottom-0 w-full py-4">
       <p>
         {"Copyright © "}
         <Link color="inherit" href="https://github.com/Ivan-Prystay">

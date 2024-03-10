@@ -167,7 +167,7 @@ function Home() {
           </button>
         </div>
 
-        <div className="py-4 px-8 border-gray-400 border-2 rounded-2xl overflow-y-scroll h-[77vh]">
+        <div className="py-4 px-8 border-gray-400 border-2 rounded-2xl overflow-y-scroll h-[77vh] w-full">
           <ul className="flex flex-row flex-wrap gap-4 justify-around ">
             {dragsList &&
               dragsList.map(
