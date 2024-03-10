@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { BaseSyntheticEvent, useEffect, useState } from "react";
 import { Drag } from "..";
 import Map from "../../components/Map";
 
@@ -89,7 +89,7 @@ function Cart() {
     localStorage.setItem("selectedDrag", newStorageDrags);
   };
 
-  const handleSubmit = async (e: React.BaseSyntheticEvent) => {
+  const handleSubmit = async (e: BaseSyntheticEvent) => {
     e.preventDefault();
     if (!totalPrice) {
       alert("Ви нічого не вибрали");
@@ -135,7 +135,7 @@ function Cart() {
 
   const [address, setAddress] = useState("Lviv");
   const [newAddress, setNewAddress] = useState("");
-  const handleChangeAddress = e => {
+  const handleChangeAddress = (e: BaseSyntheticEvent) => {
     setNewAddress(e.target.value);
   };
   useEffect(() => {
